@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero scrub — vivero</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --tinta:#1b2a21;      /* verde casi negro: el texto va OSCURO, el fondo es claro */
+    --hueso:#f6f4ef;
+    --terracota:#b25a33;  /* sale de las macetas de la propia imagen */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--hueso);
+    color:var(--tinta);
+    font:16px/1.5 "Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---- hero ---- */
+  .hero{position:relative;height:100vh;overflow:hidden}
+  .hero video{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+  }
+
+  /* Scrim superior CLARO. Medido: la franja de navbar pasa de 197 a 135 en el
+     centro y de 120 a 84 en la derecha durante el scrub — 62 puntos de caída.
+     Ningún color fijo de texto sobrevive eso, así que se la unifica en claro. */
+  .scrim-top{
+    position:absolute;inset:0 0 auto 0;height:170px;
+    background:linear-gradient(to bottom,rgba(246,244,239,.92),rgba(246,244,239,0));
+    pointer-events:none;
+  }
+  /* Refuerzo de la mitad izquierda. Esa zona ya se mantiene estable en todo el
+     recorrido (139 → 141 de brillo), el velo sólo le saca la textura de las
+     baldosas para que el titular apoye parejo. */
+  .scrim-left{
+    position:absolute;inset:0 auto 0 0;width:54%;
+    background:linear-gradient(to right,rgba(246,244,239,.78),rgba(246,244,239,0));
+    pointer-events:none;
+  }
+
+  .nav{
+    position:absolute;top:0;left:0;right:0;z-index:3;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:26px 48px;
+  }
+  .marca{font-size:19px;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+  .nav ul{display:flex;gap:34px;list-style:none;font-size:14px;letter-spacing:.06em}
+  .nav a{color:var(--tinta);text-decoration:none;opacity:.75}
+  .nav a:hover{opacity:1}
+
+  /* Arriba del centro: la mitad inferior izquierda son las baldosas (130 de
+     brillo, desvío 50) y ahí el texto se ensucia. La franja limpia es la de
+     arriba (177 → 187). */
+  .copy{
+    position:absolute;z-index:3;
+    left:48px;top:40%;transform:translateY(-50%);
+    max-width:36%;
+  }
+  .copy h1{
+    font-size:clamp(34px,4.6vw,64px);
+    line-height:1.03;font-weight:400;letter-spacing:-.02em;
+  }
+  .copy p{margin-top:20px;font-size:17px;opacity:.72;max-width:32ch}
+  .cta{
+    display:inline-block;margin-top:32px;padding:14px 30px;
+    background:var(--terracota);color:#fff;
+    text-decoration:none;font-weight:600;letter-spacing:.04em;
+    border-radius:2px;
+  }
+
+  .pista{
+    position:absolute;z-index:3;bottom:34px;left:48px;
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;
+  }
+
+  /* ---- lo que sigue, para que haya scroll ---- */
+  .resto{padding:140px 48px;max-width:760px;margin:0 auto}
+  .resto h2{font-size:30px;font-weight:400;margin-bottom:18px}
+  .resto p{opacity:.7;margin-bottom:16px}
+
+  @media (max-width:760px){
+    .copy{max-width:80%;left:28px;top:38%}
+    .nav{padding:20px 28px}
+    .nav ul{display:none}
+    .scrim-left{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <!-- sin autoplay: si lo ponés, se reproduce solo en vez de scrubearse -->
+  <video src="video/hero-scrub.mp4" muted playsinline preload="auto"></video>
+  <div class="scrim-left"></div>
+  <div class="scrim-top"></div>
+
+  <nav class="nav">
+    <div class="marca">Almácigo</div>
+    <ul>
+      <li><a href="#">Plantas</a></li>
+      <li><a href="#">Paisajismo</a></li>
+      <li><a href="#">Visitanos</a></li>
+    </ul>
+  </nav>
+
+  <div class="copy">
+    <h1>Todo lo que vendemos<br>nace acá adentro</h1>
+    <p>Criamos cada especie desde semilla, en nuestro invernadero.
+       Abrimos de miércoles a domingo.</p>
+    <a class="cta" href="#">Ver el catálogo</a>
+  </div>
+
+  <div class="pista">Scrolleá</div>
+</section>
+
+<section class="resto">
+  <h2>Contenido de relleno</h2>
+  <p>Esta sección sólo existe para que la página tenga scroll y puedas probar el
+     scrub del hero. Reemplazala por lo que vaya en el sitio real.</p>
+  <p>Mientras scrolleás, la cámara avanza por el pasillo hasta el primer plano de
+     la regadera. Al volver hacia arriba, retrocede. El video nunca se reproduce
+     solo.</p>
+</section>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const hero  = document.querySelector(".hero");
+const video = hero.querySelector("video");
+
+function armar(){
+  gsap.to(video, {
+    currentTime: video.duration,
+    ease: "none",
+    scrollTrigger: {
+      trigger: hero,
+      start: "top top",
+      end: "+=200%",
+      scrub: 1,      // 1s de suavizado: disimula cualquier salto que quede
+      pin: true
+    }
+  });
+
+  // el texto se va con el scroll, animado por el mismo trigger
+  gsap.to(".copy, .pista", {
+    opacity: 0,
+    y: -40,
+    ease: "none",
+    scrollTrigger: {
+      trigger: hero,
+      start: "top top",
+      end: "+=120%",
+      scrub: 1
+    }
+  });
+}
+
+// hay que esperar a conocer la duración real antes de armar el timeline
+if (video.readyState >= 1) armar();
+else video.addEventListener("loadedmetadata", armar, { once: true });
+</script>
+
+</body>
+</html>
