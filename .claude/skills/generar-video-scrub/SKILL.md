@@ -1,6 +1,6 @@
 ---
 name: generar-video-scrub
-description: Genera videos de dos frames con Higgsfield (GPT Image 2 + Seedance 2.0) para usar como hero de una landing page, normalmente controlados con scroll (scrub) vía GSAP. Cubre el flujo paso a paso con confirmación y preflight de costo, la elección del tipo de transición según su tasa de error, la estructura de los prompts de imagen y de video, el análisis medido de los frames generados antes de gastar en el video, y la entrega para scrub, incluido el reencodeo con keyframes densos y la relinealización del ritmo del clip. Usar siempre que el usuario pida un video para un hero, un video de frame inicial y final, un video con scroll o scrub, una transición entre dos imágenes, un explotado de producto, un recorrido interior, o pida ideas de videos para una landing — aunque no nombre Higgsfield ni la palabra "scrub".
+description: Genera videos de dos frames con Higgsfield (GPT Image 2 + Kling 3.0) para usar como hero de una landing page, normalmente controlados con scroll (scrub) vía GSAP. Cubre el flujo paso a paso con confirmación y preflight de costo, la elección del tipo de transición según su tasa de error, la estructura de los prompts de imagen y de video, el análisis medido de los frames generados antes de gastar en el video, y la entrega para scrub, incluido el reencodeo con keyframes densos, la elección medida del modelo de video, y la relinealización del ritmo del clip cuando el modelo la necesita. Usar siempre que el usuario pida un video para un hero, un video de frame inicial y final, un video con scroll o scrub, una transición entre dos imágenes, un explotado de producto, un recorrido interior, o pida ideas de videos para una landing — aunque no nombre Higgsfield ni la palabra "scrub".
 ---
 
 # Video de dos frames para hero con scrub
@@ -97,6 +97,7 @@ Medido hasta hoy, todo de la tanda del vivero (sept 2026):
 | Escala | Qué pasó |
 |---|---|
 | 1,35× | Avance de tres metros por un pasillo. **Rechazado por el usuario:** "prácticamente no hay un cambio de escena". |
+| 1,99× | Taller de carpintería: tablero de herramientas → sobre el hombro del carpintero. Avisado como "justo en el filo" antes de gastar; el usuario eligió avanzar. **Veredicto pendiente.** |
 | 2,50× | Plano general → primer plano de un objeto de la mesada. Aprobado. |
 
 Es un caso de cada lado, así que no es una ley sino el comienzo de una serie: **por
@@ -311,6 +312,21 @@ que un diagnóstico perfecto después.
   metal. Es lo más frecuente.
 - **Elementos frágiles**: manos con dedos raros, caras, espejos con reflejos
   imposibles, tipografía inventada.
+- **Geometría cortada por el borde**: cualquier elemento de arquitectura que el
+  cuadro corta —una ventana sin su alféizar, una puerta a medias, una escalera que
+  sale de plano— es **donde el modelo inventa**. Al avanzar la cámara tiene que
+  completarlo y no tiene de dónde sacarlo.
+
+  Medido en `taller-carpinteria/`: una ventana cuadrada pegada al borde izquierdo,
+  sin pared visible debajo del alféizar, **se convirtió en una puerta vidriada
+  abierta** durante los primeros cinco segundos del clip — justo encima de la zona
+  del titular. Kling 3.0 no cayó con el mismo par, pero es una lotería que no hace
+  falta jugar.
+
+  La regla: **lo que está cortado por el borde, o entra entero en cuadro, o no
+  está.** Se arregla por 1,5 rehaciendo el frame, y es más barato que rifar cuál
+  modelo lo extrapola bien. Prohibirlo en el prompt del video ayuda pero no
+  alcanza: no es desobediencia, es falta de información.
 
 ### Qué revisar entre los dos frames
 
@@ -478,22 +494,74 @@ foto moviéndose, y con scrub eso se nota más.
 *one single flowing change with no jump and no sudden replacement*, y prohibí
 explícitamente los fundidos: el atajo del modelo es resolverlo con un cross-fade.
 
-Parámetros:
+### Qué modelo: Kling 3.0 por default
 
 ```
-model: "seedance_2_0"
-duration: 8             // 8 es el equilibrio precio/resultado; 12 si hay que cubrir distancia
-resolution: "720p"
-mode: "fast"
+model: "kling3_0"
+duration: 8             // 8 es el equilibrio; 12 si hay que cubrir distancia
+mode: "std"             // "pro" cuesta 12 en vez de 10; no medido todavía
+sound: "off"            // un hero va siempre mudo
 aspect_ratio: "16:9"
-generate_audio: false   // un hero va siempre mudo
+declined_preset_id: "24bae836-2c4a-48e0-89b6-49fcc0b21612"
 medias: [
   { role: "start_image", value: "<job_id frame inicial>" },
   { role: "end_image",   value: "<job_id frame final>" }
 ]
 ```
 
-Costo: **28 créditos** los 8 segundos, **42** los 12.
+Costo: **10 créditos** los 8 segundos. No expone `resolution`: ese precio ya es el
+de calidad final, así que no hay escalón barato de screening — y a 10 no lo
+necesita. Acepta `unlim`: si el allowance está activo, sale 0.
+
+**Fallback documentado — Seedance 2.0** (`model: "seedance_2_0"`, `mode: "fast"`,
+`resolution: "720p"`, `generate_audio: false`): **28** los 8 s, **42** los 12. Más
+caro y peor en todo lo medido, pero es el que tiene historia en `cafe-londres/` y
+`vivero/`, y **sí** expone resolución: 480p baja los 8 s a **12** sin cambiar si
+alucina o no, así que sigue siendo la opción para iterar barato cuando Kling falla.
+
+#### La comparación que puso a Kling arriba
+
+Mismo par de frames, mismo prompt, mismo día (`taller-carpinteria/`, sept 2026):
+
+| | Veo 3.1 Lite (8) | **Kling 3.0 (10)** |
+|---|---|---|
+| Alucinación | ventana → puerta vidriada | **ninguna** |
+| Linealidad cruda | 0,46× a 1,52× | **0,78× a 1,11×** |
+| Medio seg. inicial / final | 0,34× / 0,41× | **0,76× / 0,91×** |
+| Fidelidad al `start_image` | 2,7 | **2,1** |
+| Fidelidad al `end_image` | 5,5 | **3,5** |
+| Detalle en la zona del titular | 2,24 → 2,74 | **2,00 → 1,35** |
+| Rango de brillo | 7,4 | **5,5** |
+
+Kling ganó las siete. **Pero es un solo par y un solo tipo de plano** (dolly
+interior): no está probado en cambio de foco ni en transformación con cámara fija,
+que es de donde vienen los datos de Seedance. Anotá cada tanda nueva acá antes de
+tratar esto como ley.
+
+#### Otros modelos con `start_image` + `end_image`
+
+Precios verificados con `get_cost` (8 s, 16:9, sin audio, sept 2026). El costo es
+lineal por segundo:
+
+| Modelo | 480p | 720p |
+|---|---|---|
+| Veo 3.1 Lite | — | **8** *(sin param de resolución)* |
+| **Kling 3.0** std / pro | — | **10 / 12** |
+| MiniMax H3 | — | 16 *(2K nativo)* |
+| Wan 3.0 | 10 | 20 *(tiene `enable_thinking`)* |
+| Seedance 2.0 Mini | 8 | 20 |
+| MiniMax H3 Max | 12 | 20 |
+| Gemini Omni Flash 1.1 | 8 *(360p)* | 24 |
+| **Seedance 2.0 fast** | **12** | **28** |
+| Wan 3.0 Prime | — | 28 |
+| Cinema Studio 3.0 | — | 40 |
+| FLUX 3 Video | — | 44 |
+| Seedance 2.5 | — | 52 |
+
+**Bajá resolución, nunca duración, para iterar.** 480p no cambia si el modelo
+corta, alucina o deforma — sólo esconde la textura fina. Un clip de 4 s en cambio
+tiene que cubrir la misma distancia en la mitad del tiempo, así que hace *más*
+probable el corte: ibas a descartar un modelo bueno por un test injusto.
 
 ### El preset "IN THE DARK"
 
@@ -523,7 +591,21 @@ Pedile al usuario que lo mire y pasale esta lista:
 Si falla, ofrecé rehacer el video con el prompt corregido (28) o rehacer un frame
 si el problema viene de la composición (1,5). **Preguntá antes de rehacer.**
 
-### El punto 6 casi siempre falla, y se arregla gratis
+### El punto 6 depende del modelo — medilo siempre, corregilo sólo si hace falta
+
+**Cuánto ease-in-out mete cada modelo, medido como pico sobre el promedio:**
+
+| Modelo | Pico | ¿Hay que relinealizar? |
+|---|---|---|
+| Seedance 2.0 | **6,6×** | Sí, siempre |
+| Veo 3.1 Lite | 1,52× | Sí — los extremos quedaban en 0,34× y 0,41× |
+| **Kling 3.0** | **1,11×** | **No.** 0,78× a 1,11× de fábrica |
+
+El criterio es el de siempre: el tramo más rápido cerca de 2× o menos y el más
+lento no por debajo de ~0,5×. **Si el clip ya lo cumple, no lo toques**: el
+remapeo mezcla cuadros y cuesta nitidez. Con Kling se saltea el paso entero.
+
+Lo que sigue vale cuando el clip no cumple.
 
 Seedance no entrega el cambio a ritmo parejo: lo entrega con ease-in-out. En un
 clip medido de 8 segundos, todo el cambio ocurrió entre el segundo 2 y el 5; el
@@ -613,10 +695,15 @@ mismo ScrollTrigger. Nunca dentro de la imagen.
 | Ítem | Créditos |
 |---|---|
 | Imagen 1k / medium / 16:9 | 1,5 |
-| Video 8s / 720p / fast | 28 |
-| Video 12s / 720p / fast | 42 |
-| **Piso teórico (2 imágenes + video)** | **31** |
-| **Tanda realista (3 a 5 imágenes + video)** | **32 a 36** |
+| **Video 8s — Kling 3.0 std** | **10** |
+| Video 8s — Seedance 2.0 fast 720p | 28 |
+| Video 8s — Seedance 2.0 fast 480p *(iterar)* | 12 |
+| Video 12s — Seedance 2.0 fast 720p | 42 |
+| **Piso teórico (2 imágenes + Kling)** | **13** |
+| **Tanda realista (3 a 5 imágenes + Kling)** | **14,5 a 17,5** |
+
+Medido de punta a punta en `taller-carpinteria/`: **25,5 créditos** para 5
+imágenes y **dos** videos (uno descartado). Con un solo video habrían sido 17,5.
 
 Los 31 asumen que las dos imágenes salen a la primera, y casi nunca pasa: entre
 calibrar el desenfoque, corregir el aire para el texto o sacar un objeto colado,

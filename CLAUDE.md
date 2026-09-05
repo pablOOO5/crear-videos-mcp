@@ -56,15 +56,24 @@ low/medium/high, rol de referencia `image`. Para el frame final del scrub se pas
 frame inicial como `medias: [{ role: "image", value: "<job_id>" }]` — la referencia no
 suma costo.
 
-**Video** — `generate_video`, modelo `seedance_2_0`: `duration` 4-15, roles
-`start_image` / `end_image`.
+**Video** — `generate_video`, modelo `kling3_0`: `duration` 3-15, `mode` std/pro/4k,
+roles `start_image` / `end_image`. **10 créditos** los 8 s en `std`. Es el default para
+scrub desde sept 2026, medido contra Veo 3.1 Lite y Seedance en `taller-carpinteria/`:
+ganó en las siete métricas y entrega el movimiento ya lineal. No expone `resolution`.
+`sound` viene en `"on"` → mandar `"off"`.
 
-Dos defaults del modelo van en contra de lo que necesita un hero, así que **siempre se
-pasan explícitos**:
+**Fallback** — `seedance_2_0`: `duration` 4-15, mismos roles, **28** créditos en 720p.
+Más caro y peor en todo lo medido, pero es el que tiene historia en `cafe-londres/` y
+`vivero/`, y expone `resolution`, así que 480p baja los 8 s a **12** para iterar barato.
+Dos defaults suyos van en contra de lo que necesita un hero:
 
 - `generate_audio` viene en `true` → un hero va mudo, mandar `false`.
 - `mode` viene en `std` → mandar `"fast"`; y `fast` solo admite 480p/720p, así que pedir
   1080p con `fast` no funciona.
+
+**Para iterar, bajá resolución, nunca duración.** 480p no cambia si el modelo corta,
+alucina o deforma; un clip más corto tiene que cubrir la misma distancia en menos tiempo
+y hace *más* probable el corte.
 
 `medias[].value` lleva un `job_id` o `media_id`, **nunca una URL**.
 
@@ -93,12 +102,18 @@ precio del scrub fluido y no hay alternativa.
 Para un loop **no** hace falta `-g 1`. Si el corte se nota igual, recortá unas décimas
 del final o meté un crossfade corto entre final y principio.
 
-### Seedance entrega el cambio con ease-in-out — relinealizarlo para scrub
+### El ease-in-out depende del modelo — medir siempre, corregir sólo si hace falta
 
-Verificado midiendo cuadro por cuadro (`cafe-londres/`, sept 2026): en un clip de 8 s,
-Seedance concentró el cambio entre los segundos 2 y 5. El primer segundo y medio y los
-últimos dos y medio eran cuadros casi idénticos, y el tramo más rápido avanzaba **6,6
-veces** más que el promedio.
+Pico de velocidad sobre el promedio, medido: **Seedance 2.0 → 6,6×** (hay que
+relinealizar siempre), **Veo 3.1 Lite → 1,52×** (hay que hacerlo: los extremos caían a
+0,34×), **Kling 3.0 → 1,11×** (no hace falta). El criterio: el tramo más rápido cerca de
+2× o menos, el más lento no por debajo de ~0,5×. **Si ya cumple, no lo toques** — el
+remapeo mezcla cuadros y cuesta nitidez.
+
+Lo que sigue vale cuando el clip no cumple. Verificado midiendo cuadro por cuadro
+(`cafe-londres/`, sept 2026): en un clip de 8 s, Seedance concentró el cambio entre los
+segundos 2 y 5. El primer segundo y medio y los últimos dos y medio eran cuadros casi
+idénticos, y el tramo más rápido avanzaba **6,6 veces** más que el promedio.
 
 En reproducción normal se lee como un ease natural. **Con scrub es un defecto**: el
 usuario scrollea sin que pase nada, después todo de golpe, después nada. Es el punto 6
@@ -133,6 +148,13 @@ cuesta 28 créditos.
 ```
 
 `muted` y `playsinline` no son opcionales: sin ellos iOS bloquea el autoplay.
+
+**Geometría cortada por el borde = alucinación.** Cualquier arquitectura que el cuadro
+corta —una ventana sin su alféizar, una puerta a medias— es donde el modelo inventa al
+avanzar la cámara, porque tiene que completarla y no tiene de dónde. En
+`taller-carpinteria/` una ventana pegada al borde izquierdo se convirtió en una puerta
+vidriada abierta, justo encima de la zona del titular. Lo que está cortado por el borde,
+o entra entero en cuadro, o no está: se arregla por 1,5 rehaciendo el frame.
 
 Titulares, CTA, logos y etiquetas van **siempre** encima en HTML o SVG, nunca dentro de
 la imagen generada — el modelo escribe texto mal de forma sistemática. Por eso los
