@@ -163,8 +163,14 @@ franja superior limpia (navbar) y un tercio lateral de aire (titular).
 
 ## Límite del entorno
 
-Si el CDN de Higgsfield está bloqueado por la política de red, no vas a poder ver las
-imágenes ni los videos que generás (`curl` devuelve un `x-deny-reason`). Decíselo al
-usuario **de entrada** y pedile que suba los archivos al chat: adjuntos sí se ven.
-Describí lo que pediste, no lo que "ves". Nunca afirmes que algo quedó bien sin haberlo
-mirado.
+**Probá el `curl` antes de suponer nada.** El CDN de Higgsfield *puede* estar bloqueado
+por la política de red, pero **no siempre lo está**: en la tanda de `taller-carpinteria/`
+(sept 2026) bajaron sin problema las 5 imágenes y los 2 videos, todos `http=200`. Avisar
+"no puedo ver lo que genero" de entrada le hace hacer al usuario un trabajo que
+probablemente no haga falta.
+
+El orden correcto es: bajar el archivo, y **sólo si `curl` falla con `x-deny-reason`**,
+decírselo al usuario y pedirle que lo suba al chat — los adjuntos sí se ven.
+
+Lo que no cambia: describí lo que pediste, no lo que "ves", y **nunca afirmes que algo
+quedó bien sin haberlo mirado**.

@@ -53,6 +53,33 @@ gastronomía, hotelería y arquitectura.
 **4. Dos mundos distintos.** Frame inicial y final en realidades diferentes,
 unidas por sentido. Es lo que más sorprende y lo que más falla.
 
+### Si el sujeto es una persona: el avance sobre el hombro
+
+No es un tipo más de la lista, es la salida a una contradicción real entre dos
+reglas de esta skill. *"Sin caras ni gente en primer plano"* y *"el frame final
+tiene que estar anclado en el inicial"* **no se pueden cumplir las dos** cuando el
+plano final es cerrado sobre una persona:
+
+- Si la ponés de frente, tenés una cara en primer plano, que es lo que peor sale.
+- Si la ponés de espaldas, para verla de frente al final la cámara tiene que
+  bordearla, y un arco de 180° es **geometría pura** que el modelo no tiene de
+  dónde sacar: le estás pidiendo que invente la cara, el torso y qué hay sobre la
+  mesa delante de ella.
+
+La salida es no elegir ninguna de las dos: **de espaldas en los dos frames**, y el
+plano final sobre su hombro. Se ven las manos, la herramienta y la pieza; nunca la
+cara. La cámara sólo avanza en línea recta. Cero arco, cero geometría inventada, y
+encima es el plano clásico de oficio — sirve para carpintería, gastronomía,
+cerámica, joyería, cualquier taller.
+
+Verificado en `taller-carpinteria/`: la cara no apareció en ninguno de los 193
+cuadros, y en el prompt del video el candado fue explícito —*"seen only from
+behind, he never turns around, his face is never visible at any point"*—.
+
+**Condición, y es la de siempre:** sobre el banco del frame inicial ya tiene que
+verse —aunque sea desenfocado— lo que el plano final va a mostrar de cerca. Si al
+final hay un cepillo y viruta, al principio tiene que haber un cepillo y viruta.
+
 ### El criterio que decide si sale o no
 
 > **Cuanto menos tenga que viajar la cámara entre los dos frames, mejor sale.**
@@ -74,6 +101,30 @@ Reglas que se desprenden:
   un milímetro. El desenfoque del frame inicial es entonces un límite del ancla,
   no una decisión estética: podés desenfocar hasta donde las formas se sigan
   adivinando, y ni un paso más.
+- **El modelo puede inventar detalle; no puede inventar geometría.** Es la forma
+  corta de la regla anterior y la que conviene tener en la cabeza al elegir el
+  plano. Que una mancha desenfocada se convierta en una remera con textura es
+  invención de *detalle*: cualquier modelo lo hace bien. Que la cámara bordee a
+  una persona para verla de frente le pide inventar *geometría* —la cara, el
+  torso, qué hay sobre la mesa delante de ella—, y ahí es donde alucina.
+- **En un avance recto, el sujeto se separa del centro.** Lo que está a la
+  izquierda del centro se va **más** a la izquierda a medida que la cámara
+  avanza; lo que está a la derecha se va más a la derecha. De ahí sale una regla
+  que no es obvia y que cuesta cara:
+
+  > **El sujeto del frame final tiene que estar, en el frame inicial, del mismo
+  > lado del centro donde va a terminar.**
+
+  Y como el aire define de qué lado termina el sujeto, la cadena queda: aire a la
+  izquierda → el sujeto termina a la derecha → **el sujeto tiene que arrancar a
+  la derecha del centro**. Con el aire a la derecha, todo espejado.
+
+  Medido en `taller-carpinteria/`: con el sujeto en x≈17% y el aire a la
+  izquierda, **no existía ningún avance de cámara capaz de relacionar los dos
+  frames** — el sujeto tenía que cruzar media pantalla hacia la derecha mientras
+  el resto de la escena pedía un avance frontal. Dos re-rolls y 3 créditos. Se
+  detecta antes con la prueba del residual (ver "Medir la distancia"), y se evita
+  del todo decidiendo esto al componer el frame inicial.
 - **Nada de aéreo alto → nivel del piso.** Es el error clásico. Si querés llegar
   al piso, arrancá de un aéreo bajo.
 - **Compartí el eje.** Aunque los dos frames sean lugares distintos, que la
@@ -436,6 +487,13 @@ Tres advertencias, las tres aprendidas rompiéndose la cabeza contra esto:
   frames dio 1,80× con una grilla acotada y 1,35× con una amplia—. Lo robusto es el
   orden de magnitud y la comparación contra tandas anteriores, no el segundo
   decimal. No lo reportes con más precisión de la que tiene.
+- **La segmentación automática del sujeto no es confiable — el recorte visual es
+  la fuente de verdad.** Aislar al sujeto con una máscara de color o de umbral
+  parece lo rápido y falla feo: en `taller-carpinteria/` una máscara sobre la
+  remera azul oscura devolvió **30 y 46 píxeles de ruido** en dos intentos, y con
+  otro umbral se comió el marco de la ventana y dio un bbox de 159 px de ancho
+  para un sujeto de 70. Lo que funciona siempre: recortar la zona, ampliarla,
+  **mirarla**, y medir el ancho de hombros sobre esa vista.
 - **Controlalo a mano.** Medí el ancho del sujeto en píxeles en los dos frames y
   dividí. En el vivero eso dio 170 → 380 px, o sea 2,24×, contra 2,50× del
   automático: mismo orden, y el manual es el que manda si difieren mucho.
@@ -446,7 +504,30 @@ Tres advertencias, las tres aprendidas rompiéndose la cabeza contra esto:
   daba un valor razonable si se le ponía un piso arbitrario al rango — es decir, si
   ya sabías la respuesta.
 
-El residual, además, dice si hubo parallax real: si compensar la escala casi no
+### El residual es el semáforo: pasa o no pasa al video
+
+El mismo barrido devuelve, gratis, la medición **más rentable de todo el flujo**:
+si los dos frames son geométricamente compatibles. Leelo así:
+
+| | Par que **no** pasa | Par que pasa |
+|---|---|---|
+| Caída del residual al compensar | **−11%** (51,5 → 45,9) | **−40%** (39,2 → 23,6) |
+| Centro de fuga | **x=5%**, pegado al borde | **x=45% y=50%**, centrado |
+
+**El centro de fuga pegado al borde de la grilla es la firma del rechazo.**
+Significa que el optimizador no encontró ningún punto de expansión que funcione,
+o sea que **no existe ningún avance de cámara que relacione los dos frames**. No
+lo interpretes como "el número dio un poco peor": es categórico.
+
+Los dos casos de la tabla son el mismo cliente el mismo día
+(`taller-carpinteria/`), con el mismo frame final. Lo único que cambiaba era de
+qué lado del centro estaba el sujeto en el frame inicial.
+
+**Si el residual no baja al menos ~30% o el centro de fuga sale pegado a un
+borde, no lances el video.** Rehacé un frame por 1,5. Es la diferencia entre
+gastar 1,5 y gastar 10 a 28 en un clip que va a cortar.
+
+El residual también dice si hubo parallax real: si compensar la escala casi no
 baja el error (40,3 → 35,1 en el vivero), es un dolly con parallax y no un zoom.
 
 Entregá el diagnóstico como una lista corta de hallazgos concretos, con los
@@ -571,6 +652,11 @@ aparece igual en un amanecer en el Caribe que en un fondo blanco de estudio. Es 
 falso positivo conocido. **Rechazalo siempre** pasando
 `declined_preset_id: "24bae836-2c4a-48e0-89b6-49fcc0b21612"` y comentáselo al
 usuario en una línea, en lugar de aplicarlo por tu cuenta.
+
+**Mandalo también en el `get_cost`**, no sólo en la generación: la recomendación
+del preset **bloquea el preflight igual que la llamada real** —devuelve el aviso
+en lugar del costo— así que sin el `declined_preset_id` perdés un ida y vuelta
+antes de poder decirle el número al usuario.
 
 ## Verificar el video
 
