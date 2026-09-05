@@ -1,6 +1,6 @@
 ---
 name: generar-video-scrub
-description: Genera videos de dos frames con Higgsfield (GPT Image 2 + Seedance 2.0) para usar como hero de una landing page, normalmente controlados con scroll (scrub) vía GSAP. Cubre el flujo paso a paso con confirmación y preflight de costo, la elección del tipo de transición según su tasa de error, la estructura de los prompts de imagen y de video, el análisis medido de los frames generados antes de gastar en el video, y la entrega para scrub, incluido el reencodeo con keyframes densos y la relinealización del ritmo del clip. Usar siempre que el usuario pida un video para un hero, un video de frame inicial y final, un video con scroll o scrub, una transición entre dos imágenes, un explotado de producto, un recorrido interior, o pida ideas de videos para una landing — aunque no nombre Higgsfield ni la palabra "scrub".
+description: Genera videos de dos frames con Higgsfield (GPT Image 2 + Kling 3.0) para usar como hero de una landing page, normalmente controlados con scroll (scrub) vía GSAP. Cubre el flujo paso a paso con confirmación y preflight de costo, la elección del tipo de transición según su tasa de error, la estructura de los prompts de imagen y de video, el análisis medido de los frames generados antes de gastar en el video, y la entrega para scrub, incluido el reencodeo con keyframes densos, la elección medida del modelo de video, y la relinealización del ritmo del clip cuando el modelo la necesita. Usar siempre que el usuario pida un video para un hero, un video de frame inicial y final, un video con scroll o scrub, una transición entre dos imágenes, un explotado de producto, un recorrido interior, o pida ideas de videos para una landing — aunque no nombre Higgsfield ni la palabra "scrub".
 ---
 
 # Video de dos frames para hero con scrub
@@ -53,6 +53,33 @@ gastronomía, hotelería y arquitectura.
 **4. Dos mundos distintos.** Frame inicial y final en realidades diferentes,
 unidas por sentido. Es lo que más sorprende y lo que más falla.
 
+### Si el sujeto es una persona: el avance sobre el hombro
+
+No es un tipo más de la lista, es la salida a una contradicción real entre dos
+reglas de esta skill. *"Sin caras ni gente en primer plano"* y *"el frame final
+tiene que estar anclado en el inicial"* **no se pueden cumplir las dos** cuando el
+plano final es cerrado sobre una persona:
+
+- Si la ponés de frente, tenés una cara en primer plano, que es lo que peor sale.
+- Si la ponés de espaldas, para verla de frente al final la cámara tiene que
+  bordearla, y un arco de 180° es **geometría pura** que el modelo no tiene de
+  dónde sacar: le estás pidiendo que invente la cara, el torso y qué hay sobre la
+  mesa delante de ella.
+
+La salida es no elegir ninguna de las dos: **de espaldas en los dos frames**, y el
+plano final sobre su hombro. Se ven las manos, la herramienta y la pieza; nunca la
+cara. La cámara sólo avanza en línea recta. Cero arco, cero geometría inventada, y
+encima es el plano clásico de oficio — sirve para carpintería, gastronomía,
+cerámica, joyería, cualquier taller.
+
+Verificado en `taller-carpinteria/`: la cara no apareció en ninguno de los 193
+cuadros, y en el prompt del video el candado fue explícito —*"seen only from
+behind, he never turns around, his face is never visible at any point"*—.
+
+**Condición, y es la de siempre:** sobre el banco del frame inicial ya tiene que
+verse —aunque sea desenfocado— lo que el plano final va a mostrar de cerca. Si al
+final hay un cepillo y viruta, al principio tiene que haber un cepillo y viruta.
+
 ### El criterio que decide si sale o no
 
 > **Cuanto menos tenga que viajar la cámara entre los dos frames, mejor sale.**
@@ -74,6 +101,30 @@ Reglas que se desprenden:
   un milímetro. El desenfoque del frame inicial es entonces un límite del ancla,
   no una decisión estética: podés desenfocar hasta donde las formas se sigan
   adivinando, y ni un paso más.
+- **El modelo puede inventar detalle; no puede inventar geometría.** Es la forma
+  corta de la regla anterior y la que conviene tener en la cabeza al elegir el
+  plano. Que una mancha desenfocada se convierta en una remera con textura es
+  invención de *detalle*: cualquier modelo lo hace bien. Que la cámara bordee a
+  una persona para verla de frente le pide inventar *geometría* —la cara, el
+  torso, qué hay sobre la mesa delante de ella—, y ahí es donde alucina.
+- **En un avance recto, el sujeto se separa del centro.** Lo que está a la
+  izquierda del centro se va **más** a la izquierda a medida que la cámara
+  avanza; lo que está a la derecha se va más a la derecha. De ahí sale una regla
+  que no es obvia y que cuesta cara:
+
+  > **El sujeto del frame final tiene que estar, en el frame inicial, del mismo
+  > lado del centro donde va a terminar.**
+
+  Y como el aire define de qué lado termina el sujeto, la cadena queda: aire a la
+  izquierda → el sujeto termina a la derecha → **el sujeto tiene que arrancar a
+  la derecha del centro**. Con el aire a la derecha, todo espejado.
+
+  Medido en `taller-carpinteria/`: con el sujeto en x≈17% y el aire a la
+  izquierda, **no existía ningún avance de cámara capaz de relacionar los dos
+  frames** — el sujeto tenía que cruzar media pantalla hacia la derecha mientras
+  el resto de la escena pedía un avance frontal. Dos re-rolls y 3 créditos. Se
+  detecta antes con la prueba del residual (ver "Medir la distancia"), y se evita
+  del todo decidiendo esto al componer el frame inicial.
 - **Nada de aéreo alto → nivel del piso.** Es el error clásico. Si querés llegar
   al piso, arrancá de un aéreo bajo.
 - **Compartí el eje.** Aunque los dos frames sean lugares distintos, que la
@@ -97,6 +148,7 @@ Medido hasta hoy, todo de la tanda del vivero (sept 2026):
 | Escala | Qué pasó |
 |---|---|
 | 1,35× | Avance de tres metros por un pasillo. **Rechazado por el usuario:** "prácticamente no hay un cambio de escena". |
+| 1,99× | Taller de carpintería: tablero de herramientas → sobre el hombro del carpintero. Avisado como "justo en el filo" antes de gastar; el usuario eligió avanzar. **Veredicto pendiente.** |
 | 2,50× | Plano general → primer plano de un objeto de la mesada. Aprobado. |
 
 Es un caso de cada lado, así que no es una ley sino el comienzo de una serie: **por
@@ -311,6 +363,21 @@ que un diagnóstico perfecto después.
   metal. Es lo más frecuente.
 - **Elementos frágiles**: manos con dedos raros, caras, espejos con reflejos
   imposibles, tipografía inventada.
+- **Geometría cortada por el borde**: cualquier elemento de arquitectura que el
+  cuadro corta —una ventana sin su alféizar, una puerta a medias, una escalera que
+  sale de plano— es **donde el modelo inventa**. Al avanzar la cámara tiene que
+  completarlo y no tiene de dónde sacarlo.
+
+  Medido en `taller-carpinteria/`: una ventana cuadrada pegada al borde izquierdo,
+  sin pared visible debajo del alféizar, **se convirtió en una puerta vidriada
+  abierta** durante los primeros cinco segundos del clip — justo encima de la zona
+  del titular. Kling 3.0 no cayó con el mismo par, pero es una lotería que no hace
+  falta jugar.
+
+  La regla: **lo que está cortado por el borde, o entra entero en cuadro, o no
+  está.** Se arregla por 1,5 rehaciendo el frame, y es más barato que rifar cuál
+  modelo lo extrapola bien. Prohibirlo en el prompt del video ayuda pero no
+  alcanza: no es desobediencia, es falta de información.
 
 ### Qué revisar entre los dos frames
 
@@ -420,6 +487,13 @@ Tres advertencias, las tres aprendidas rompiéndose la cabeza contra esto:
   frames dio 1,80× con una grilla acotada y 1,35× con una amplia—. Lo robusto es el
   orden de magnitud y la comparación contra tandas anteriores, no el segundo
   decimal. No lo reportes con más precisión de la que tiene.
+- **La segmentación automática del sujeto no es confiable — el recorte visual es
+  la fuente de verdad.** Aislar al sujeto con una máscara de color o de umbral
+  parece lo rápido y falla feo: en `taller-carpinteria/` una máscara sobre la
+  remera azul oscura devolvió **30 y 46 píxeles de ruido** en dos intentos, y con
+  otro umbral se comió el marco de la ventana y dio un bbox de 159 px de ancho
+  para un sujeto de 70. Lo que funciona siempre: recortar la zona, ampliarla,
+  **mirarla**, y medir el ancho de hombros sobre esa vista.
 - **Controlalo a mano.** Medí el ancho del sujeto en píxeles en los dos frames y
   dividí. En el vivero eso dio 170 → 380 px, o sea 2,24×, contra 2,50× del
   automático: mismo orden, y el manual es el que manda si difieren mucho.
@@ -430,7 +504,30 @@ Tres advertencias, las tres aprendidas rompiéndose la cabeza contra esto:
   daba un valor razonable si se le ponía un piso arbitrario al rango — es decir, si
   ya sabías la respuesta.
 
-El residual, además, dice si hubo parallax real: si compensar la escala casi no
+### El residual es el semáforo: pasa o no pasa al video
+
+El mismo barrido devuelve, gratis, la medición **más rentable de todo el flujo**:
+si los dos frames son geométricamente compatibles. Leelo así:
+
+| | Par que **no** pasa | Par que pasa |
+|---|---|---|
+| Caída del residual al compensar | **−11%** (51,5 → 45,9) | **−40%** (39,2 → 23,6) |
+| Centro de fuga | **x=5%**, pegado al borde | **x=45% y=50%**, centrado |
+
+**El centro de fuga pegado al borde de la grilla es la firma del rechazo.**
+Significa que el optimizador no encontró ningún punto de expansión que funcione,
+o sea que **no existe ningún avance de cámara que relacione los dos frames**. No
+lo interpretes como "el número dio un poco peor": es categórico.
+
+Los dos casos de la tabla son el mismo cliente el mismo día
+(`taller-carpinteria/`), con el mismo frame final. Lo único que cambiaba era de
+qué lado del centro estaba el sujeto en el frame inicial.
+
+**Si el residual no baja al menos ~30% o el centro de fuga sale pegado a un
+borde, no lances el video.** Rehacé un frame por 1,5. Es la diferencia entre
+gastar 1,5 y gastar 10 a 28 en un clip que va a cortar.
+
+El residual también dice si hubo parallax real: si compensar la escala casi no
 baja el error (40,3 → 35,1 en el vivero), es un dolly con parallax y no un zoom.
 
 Entregá el diagnóstico como una lista corta de hallazgos concretos, con los
@@ -478,22 +575,74 @@ foto moviéndose, y con scrub eso se nota más.
 *one single flowing change with no jump and no sudden replacement*, y prohibí
 explícitamente los fundidos: el atajo del modelo es resolverlo con un cross-fade.
 
-Parámetros:
+### Qué modelo: Kling 3.0 por default
 
 ```
-model: "seedance_2_0"
-duration: 8             // 8 es el equilibrio precio/resultado; 12 si hay que cubrir distancia
-resolution: "720p"
-mode: "fast"
+model: "kling3_0"
+duration: 8             // 8 es el equilibrio; 12 si hay que cubrir distancia
+mode: "std"             // "pro" cuesta 12 en vez de 10; no medido todavía
+sound: "off"            // un hero va siempre mudo
 aspect_ratio: "16:9"
-generate_audio: false   // un hero va siempre mudo
+declined_preset_id: "24bae836-2c4a-48e0-89b6-49fcc0b21612"
 medias: [
   { role: "start_image", value: "<job_id frame inicial>" },
   { role: "end_image",   value: "<job_id frame final>" }
 ]
 ```
 
-Costo: **28 créditos** los 8 segundos, **42** los 12.
+Costo: **10 créditos** los 8 segundos. No expone `resolution`: ese precio ya es el
+de calidad final, así que no hay escalón barato de screening — y a 10 no lo
+necesita. Acepta `unlim`: si el allowance está activo, sale 0.
+
+**Fallback documentado — Seedance 2.0** (`model: "seedance_2_0"`, `mode: "fast"`,
+`resolution: "720p"`, `generate_audio: false`): **28** los 8 s, **42** los 12. Más
+caro y peor en todo lo medido, pero es el que tiene historia en `cafe-londres/` y
+`vivero/`, y **sí** expone resolución: 480p baja los 8 s a **12** sin cambiar si
+alucina o no, así que sigue siendo la opción para iterar barato cuando Kling falla.
+
+#### La comparación que puso a Kling arriba
+
+Mismo par de frames, mismo prompt, mismo día (`taller-carpinteria/`, sept 2026):
+
+| | Veo 3.1 Lite (8) | **Kling 3.0 (10)** |
+|---|---|---|
+| Alucinación | ventana → puerta vidriada | **ninguna** |
+| Linealidad cruda | 0,46× a 1,52× | **0,78× a 1,11×** |
+| Medio seg. inicial / final | 0,34× / 0,41× | **0,76× / 0,91×** |
+| Fidelidad al `start_image` | 2,7 | **2,1** |
+| Fidelidad al `end_image` | 5,5 | **3,5** |
+| Detalle en la zona del titular | 2,24 → 2,74 | **2,00 → 1,35** |
+| Rango de brillo | 7,4 | **5,5** |
+
+Kling ganó las siete. **Pero es un solo par y un solo tipo de plano** (dolly
+interior): no está probado en cambio de foco ni en transformación con cámara fija,
+que es de donde vienen los datos de Seedance. Anotá cada tanda nueva acá antes de
+tratar esto como ley.
+
+#### Otros modelos con `start_image` + `end_image`
+
+Precios verificados con `get_cost` (8 s, 16:9, sin audio, sept 2026). El costo es
+lineal por segundo:
+
+| Modelo | 480p | 720p |
+|---|---|---|
+| Veo 3.1 Lite | — | **8** *(sin param de resolución)* |
+| **Kling 3.0** std / pro | — | **10 / 12** |
+| MiniMax H3 | — | 16 *(2K nativo)* |
+| Wan 3.0 | 10 | 20 *(tiene `enable_thinking`)* |
+| Seedance 2.0 Mini | 8 | 20 |
+| MiniMax H3 Max | 12 | 20 |
+| Gemini Omni Flash 1.1 | 8 *(360p)* | 24 |
+| **Seedance 2.0 fast** | **12** | **28** |
+| Wan 3.0 Prime | — | 28 |
+| Cinema Studio 3.0 | — | 40 |
+| FLUX 3 Video | — | 44 |
+| Seedance 2.5 | — | 52 |
+
+**Bajá resolución, nunca duración, para iterar.** 480p no cambia si el modelo
+corta, alucina o deforma — sólo esconde la textura fina. Un clip de 4 s en cambio
+tiene que cubrir la misma distancia en la mitad del tiempo, así que hace *más*
+probable el corte: ibas a descartar un modelo bueno por un test injusto.
 
 ### El preset "IN THE DARK"
 
@@ -503,6 +652,11 @@ aparece igual en un amanecer en el Caribe que en un fondo blanco de estudio. Es 
 falso positivo conocido. **Rechazalo siempre** pasando
 `declined_preset_id: "24bae836-2c4a-48e0-89b6-49fcc0b21612"` y comentáselo al
 usuario en una línea, en lugar de aplicarlo por tu cuenta.
+
+**Mandalo también en el `get_cost`**, no sólo en la generación: la recomendación
+del preset **bloquea el preflight igual que la llamada real** —devuelve el aviso
+en lugar del costo— así que sin el `declined_preset_id` perdés un ida y vuelta
+antes de poder decirle el número al usuario.
 
 ## Verificar el video
 
@@ -523,7 +677,21 @@ Pedile al usuario que lo mire y pasale esta lista:
 Si falla, ofrecé rehacer el video con el prompt corregido (28) o rehacer un frame
 si el problema viene de la composición (1,5). **Preguntá antes de rehacer.**
 
-### El punto 6 casi siempre falla, y se arregla gratis
+### El punto 6 depende del modelo — medilo siempre, corregilo sólo si hace falta
+
+**Cuánto ease-in-out mete cada modelo, medido como pico sobre el promedio:**
+
+| Modelo | Pico | ¿Hay que relinealizar? |
+|---|---|---|
+| Seedance 2.0 | **6,6×** | Sí, siempre |
+| Veo 3.1 Lite | 1,52× | Sí — los extremos quedaban en 0,34× y 0,41× |
+| **Kling 3.0** | **1,11×** | **No.** 0,78× a 1,11× de fábrica |
+
+El criterio es el de siempre: el tramo más rápido cerca de 2× o menos y el más
+lento no por debajo de ~0,5×. **Si el clip ya lo cumple, no lo toques**: el
+remapeo mezcla cuadros y cuesta nitidez. Con Kling se saltea el paso entero.
+
+Lo que sigue vale cuando el clip no cumple.
 
 Seedance no entrega el cambio a ritmo parejo: lo entrega con ease-in-out. En un
 clip medido de 8 segundos, todo el cambio ocurrió entre el segundo 2 y el 5; el
@@ -613,10 +781,15 @@ mismo ScrollTrigger. Nunca dentro de la imagen.
 | Ítem | Créditos |
 |---|---|
 | Imagen 1k / medium / 16:9 | 1,5 |
-| Video 8s / 720p / fast | 28 |
-| Video 12s / 720p / fast | 42 |
-| **Piso teórico (2 imágenes + video)** | **31** |
-| **Tanda realista (3 a 5 imágenes + video)** | **32 a 36** |
+| **Video 8s — Kling 3.0 std** | **10** |
+| Video 8s — Seedance 2.0 fast 720p | 28 |
+| Video 8s — Seedance 2.0 fast 480p *(iterar)* | 12 |
+| Video 12s — Seedance 2.0 fast 720p | 42 |
+| **Piso teórico (2 imágenes + Kling)** | **13** |
+| **Tanda realista (3 a 5 imágenes + Kling)** | **14,5 a 17,5** |
+
+Medido de punta a punta en `taller-carpinteria/`: **25,5 créditos** para 5
+imágenes y **dos** videos (uno descartado). Con un solo video habrían sido 17,5.
 
 Los 31 asumen que las dos imágenes salen a la primera, y casi nunca pasa: entre
 calibrar el desenfoque, corregir el aire para el texto o sacar un objeto colado,
