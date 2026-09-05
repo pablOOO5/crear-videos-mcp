@@ -43,6 +43,9 @@ ffmpeg -i video/kling-raw.mp4 -c:v libx264 -g 1 -crf 20 -pix_fmt yuv420p -an \
   -movflags +faststart video/hero.mp4
 ```
 
+El clip pasó las seis verificaciones técnicas y **se rechazó igual, por escala
+insuficiente**. Es el caso que subió el umbral de la skill de 2× a 2,5×.
+
 **No se relinealizó**: Kling entregó la curva ya pareja (0,78× a 1,11×), y el
 remapeo mezcla cuadros y cuesta nitidez. Ver el punto 6 de la skill.
 
@@ -51,6 +54,6 @@ remapeo mezcla cuadros y cuesta nitidez. Ver el punto 6 de la skill.
 | | |
 |---|---|
 | Residual del warp | 39,2 → 23,6 (**−40%**), centro de fuga x=45% y=50% |
-| Escala aparente | **1,99×** (automática 1,90×, manual 122 → 243 px) — veredicto pendiente |
+| Escala aparente | **1,99×** (automática 1,90×, manual 122 → 243 px) — **RECHAZADO por el usuario: "quedó corto"** |
 | Zona del titular | detalle 2,00 → 1,35, brillo 121 → 109 a lo largo del clip |
 | Linealidad del clip | 0,78× a 1,11×, sin corregir |

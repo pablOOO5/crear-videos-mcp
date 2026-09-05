@@ -138,23 +138,41 @@ segundos, o partirlo en dos clips con un frame intermedio y pegarlos con ffmpeg.
 Todo lo anterior empuja a mover poco. Eso baja la probabilidad de que el clip se
 rompa, que **no es lo mismo** que la probabilidad de que valga la pena scrubearlo.
 Un desplazamiento prolijo en el que no pasa nada se rechaza igual que uno cortado,
-sólo que además de perder los 28 créditos era aburrido. La lista de tipos de arriba
+sólo que además de perder los créditos era aburrido. La lista de tipos de arriba
 ordena por riesgo técnico, no por interés.
 
 La medida práctica del piso es **la escala aparente entre los dos frames**: cuánto
 se agranda el sujeto del inicial al final (ver "Medir la distancia" más abajo).
-Medido hasta hoy, todo de la tanda del vivero (sept 2026):
+Serie medida hasta hoy (sept 2026):
 
-| Escala | Qué pasó |
-|---|---|
-| 1,35× | Avance de tres metros por un pasillo. **Rechazado por el usuario:** "prácticamente no hay un cambio de escena". |
-| 1,99× | Taller de carpintería: tablero de herramientas → sobre el hombro del carpintero. Avisado como "justo en el filo" antes de gastar; el usuario eligió avanzar. **Veredicto pendiente.** |
-| 2,50× | Plano general → primer plano de un objeto de la mesada. Aprobado. |
+| Escala | Qué pasó | Veredicto |
+|---|---|---|
+| 1,35× | Vivero: avance de tres metros por un pasillo | **Rechazado** — "prácticamente no hay un cambio de escena" |
+| **1,99×** | Taller de carpintería: tablero de herramientas → sobre el hombro del carpintero. Clip técnicamente impecable: sin corte, sólidos intactos, luz estable, ritmo parejo | **Rechazado** — "quedó corto" |
+| 2,50× | Vivero: plano general → primer plano de un objeto de la mesada | **Aprobado** |
 
-Es un caso de cada lado, así que no es una ley sino el comienzo de una serie: **por
-debajo de 2× avisá antes de gastar los 28** y ofrecé un frame final más cerrado por
-1,5. Anotá la escala de cada tanda con su veredicto, para que el umbral se apoye en
-datos y no en intuición.
+> **Apuntá a 2,5×. Por debajo de 2,5× avisá antes de gastar el video** y ofrecé un
+> frame final más cerrado por 1,5.
+
+El 1,99× es el caso que fijó el umbral, y vale la pena leer cómo pasó: la medición
+lo marcó "justo en el filo", se avisó antes de gastar, el usuario eligió avanzar, y
+**el clip salió perfecto en las seis verificaciones técnicas y se rechazó igual**.
+Ese es exactamente el modo de falla que esta sección describe: la escala no predice
+si el video se rompe, predice si vale la pena scrubearlo, y son cosas distintas.
+
+Dos lecciones prácticas:
+
+- **Un clip impecable que quedó corto se tira igual.** No te dejes tranquilizar por
+  que las verificaciones den bien: son ortogonales a esto.
+- **Cerrar el frame final cuesta 1,5 y tiene valor esperado positivo cuando la
+  medición da borderline.** Si sale corto igual, perdiste 1,5; si no lo cerrás y
+  sale corto, perdés 1,5 *más* el video. En el taller de carpintería el modelo
+  además **entregó menos de lo pedido**: le pedí hombros a un cuarto del ancho
+  (336 px) y devolvió 243 px, o sea 1,99× en vez de los 2,75× planificados. Pedí
+  el plano **más cerrado de lo que querés**, porque `gpt_image_2` afloja.
+
+Anotá la escala de cada tanda con su veredicto, para que el umbral se siga apoyando
+en datos y no en intuición.
 
 El corolario para elegir el tipo: el cambio de foco y la transformación con cámara
 fija cambian mucho *aunque* la cámara no viaje — por eso son seguros y además
@@ -329,8 +347,9 @@ Este es el punto del paso. Comparando los dos frames tenés que poder responder:
   rehaciendo ese frame por 1,5, no escribiendo más prohibiciones.
 - **¿La distancia es razonable, y es suficiente?** No la estimes a ojo: medí la
   escala aparente (ver "Medir la distancia"). Si la cámara tiene que cruzar medio
-  ambiente en 8 segundos, avisá antes de gastar; si la escala no llega a 2×, avisá
-  también, porque el clip va a salir bien y no va a servir.
+  ambiente en 8 segundos, avisá antes de gastar; **si la escala no llega a 2,5×,
+  avisá también**, porque el clip va a salir bien y no va a servir. Ya pasó: un
+  1,99× impecable en las seis verificaciones se rechazó por corto.
 
 Escribí el prompt del video recién después de esto, usando los sustantivos que
 viste en las imágenes.
