@@ -1,0 +1,23 @@
+# Los binarios de media no se versionan.
+#
+# El negocio consume los videos por URL, y todo lo generado con Higgsfield se
+# recupera con su job_id, que esta anotado en el MANIFIESTO.md de cada tanda.
+# El repo guarda el procedimiento y las mediciones, no los archivos.
+#
+# DOS ADVERTENCIAS:
+#
+# 1. El archivo que sirve el CDN NO se puede scrubear: es el crudo, con 1 solo
+#    keyframe. El que va a la landing es siempre el reencodeado con -g 1, que es
+#    un artefacto de build y se sube al hosting del cliente.
+#
+# 2. Una imagen que NO se genero con Higgsfield no tiene job_id y por lo tanto
+#    no se recupera. Si entra material propio a una tanda, respaldalo aparte.
+#
+# Las tandas viejas (cafe-londres/, vivero/) siguen trackeadas a proposito: son
+# anteriores a esta convencion y no tienen manifiesto, asi que untrackearlas las
+# volveria irrecuperables.
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.webp

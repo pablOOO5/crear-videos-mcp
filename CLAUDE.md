@@ -12,6 +12,25 @@ con ffmpeg y entregar el MP4 junto con el markup que lo reproduce.
 Cada tanda es footage para el sitio de un cliente distinto. Guardá el material por
 cliente/rubro, no suelto en la raíz.
 
+**El repo guarda el procedimiento, no los archivos.** Los binarios de media están en
+`.gitignore`: el negocio consume los videos por URL, y todo lo generado con Higgsfield
+se recupera con su `job_id`. Cada carpeta de cliente lleva un **`MANIFIESTO.md`** con
+los `job_id` de cada imagen y cada video, cuáles se descartaron y por qué, el comando
+para reconstruir el MP4 final, y las mediciones del par. Ver
+`taller-carpinteria/MANIFIESTO.md` como plantilla.
+
+Tres cosas que no se pueden olvidar al hacerlo:
+
+- **El archivo que sirve el CDN no se puede scrubear**: es el crudo, con un solo
+  keyframe. El que va a la landing es el reencodeado con `-g 1`, que es un artefacto de
+  build y se sube al hosting del cliente, no acá.
+- **Si entra material propio del usuario a una tanda, no tiene `job_id` y no se
+  recupera.** Decíselo y pedile que lo respalde aparte antes de untrackearlo.
+- **`cafe-londres/` y `vivero/` siguen con la media versionada a propósito**: son
+  anteriores a esta convención y no tienen manifiesto, así que sacarles los archivos
+  los volvería irrecuperables. Si querés aplicarles la misma regla, primero hay que
+  reconstruirles el manifiesto con los `job_id`.
+
 ## Las dos skills del proyecto
 
 Viven en `.claude/skills/` y son el procedimiento real de trabajo. **Leelas antes de
