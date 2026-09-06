@@ -62,8 +62,8 @@ dinero real del usuario.
   vez y seguí.
 
 En `generar-video-scrub` hay un paso más que **no es opcional**: bajar los dos frames y
-mirarlos antes de lanzar el video. Un problema de composición cuesta 1,5 créditos
-arreglarlo ahí y 28 después.
+mirarlos antes de lanzar el video. Un problema de composición cuesta 1 crédito
+arreglarlo ahí y 10 después.
 
 ## Contrato con la MCP de Higgsfield
 
@@ -71,14 +71,16 @@ Parámetros verificados contra el catálogo (`models_explore action:"get"`). Si 
 verificá de nuevo ahí antes de suponer que la skill está mal.
 
 **Imagen** — `generate_image`, modelo `gpt_image_2`: `resolution` 1k/2k/4k, `quality`
-low/medium/high, rol de referencia `image`. Para el frame final del scrub se pasa el
-frame inicial como `medias: [{ role: "image", value: "<job_id>" }]` — la referencia no
-suma costo.
+low/medium/high, rol de referencia `image`. **1 crédito** en 1k/medium/16:9 — bajó de
+1,5 (sept 2026). Para el frame final del scrub se pasa el frame inicial como
+`medias: [{ role: "image", value: "<job_id>" }]` — la referencia no suma costo.
 
 **Video** — `generate_video`, modelo `kling3_0`: `duration` 3-15, `mode` std/pro/4k,
 roles `start_image` / `end_image`. **10 créditos** los 8 s en `std`. Es el default para
 scrub desde sept 2026, medido contra Veo 3.1 Lite y Seedance en `taller-carpinteria/`:
-ganó en las siete métricas y entrega el movimiento ya lineal. No expone `resolution`.
+ganó en las siete métricas. **Entrega el movimiento ya lineal sólo en dolly** — en
+transformación con cámara fija hay que relinealizar igual, ver abajo. No expone
+`resolution`.
 `sound` viene en `"on"` → mandar `"off"`.
 
 **Fallback** — `seedance_2_0`: `duration` 4-15, mismos roles, **28** créditos en 720p.
@@ -123,11 +125,19 @@ del final o meté un crossfade corto entre final y principio.
 
 ### El ease-in-out depende del modelo — medir siempre, corregir sólo si hace falta
 
-Pico de velocidad sobre el promedio, medido: **Seedance 2.0 → 6,6×** (hay que
-relinealizar siempre), **Veo 3.1 Lite → 1,52×** (hay que hacerlo: los extremos caían a
-0,34×), **Kling 3.0 → 1,11×** (no hace falta). El criterio: el tramo más rápido cerca de
-2× o menos, el más lento no por debajo de ~0,5×. **Si ya cumple, no lo toques** — el
+Pico de velocidad sobre el promedio, medido: **Seedance 2.0 → 6,6×** y **Veo 3.1 Lite
+→ 1,52×**, los dos en dolly interior, los dos hay que relinealizarlos. **Kling 3.0 →
+1,11× en dolly, pero 2,75× y 3,41× en transformación con cámara fija**, con la cola
+cayendo a 0,02× (`joyeria-alianzas/`). **Depende del plano, no sólo del modelo: medí
+siempre, no hay atajo por modelo.** El criterio: el tramo más rápido cerca de 2× o
+menos, el más lento no por debajo de ~0,5×. **Si ya cumple, no lo toques** — el
 remapeo mezcla cuadros y cuesta nitidez.
+
+**Medí siempre sobre cuadros filtrados** (achicar a ~320 px + `GaussianBlur(1.5)`),
+también al verificar. Con grano crudo la mezcla de cuadros descorrelaciona el grano e
+infla la medición justo en la cola: el mismo clip daba pico 3,15× crudo y 2,18×
+filtrado. Y en clips oscuros **no restes el piso de grano** — el paso está en la skill
+como indispensable y ahí sobrecorregía de 1,37× a 6,4×.
 
 Lo que sigue vale cuando el clip no cumple. Verificado midiendo cuadro por cuadro
 (`cafe-londres/`, sept 2026): en un clip de 8 s, Seedance concentró el cambio entre los
@@ -173,12 +183,36 @@ corta —una ventana sin su alféizar, una puerta a medias— es donde el modelo
 avanzar la cámara, porque tiene que completarla y no tiene de dónde. En
 `taller-carpinteria/` una ventana pegada al borde izquierdo se convirtió en una puerta
 vidriada abierta, justo encima de la zona del titular. Lo que está cortado por el borde,
-o entra entero en cuadro, o no está: se arregla por 1,5 rehaciendo el frame.
+o entra entero en cuadro, o no está: se arregla por 1 rehaciendo el frame.
 
 Titulares, CTA, logos y etiquetas van **siempre** encima en HTML o SVG, nunca dentro de
 la imagen generada — el modelo escribe texto mal de forma sistemática. Por eso los
 prompts de las skills prohíben texto y carteles, y por eso las composiciones reservan
 franja superior limpia (navbar) y un tercio lateral de aire (titular).
+
+**El aire que reservás para el texto es donde el modelo va a meter lo nuevo.** Es el
+error más caro de `joyeria-alianzas/` y no estaba en ninguna lista. Durante una
+transformación el modelo tiene que traer lo que aparece por algún lado, y usa el
+espacio vacío: con el aire a la izquierda y un frame final donde la manga del novio
+entraba desde la izquierda, su mano cruzó la zona del titular y la dejó en **p95 192
+durante tres de los ocho segundos**. Prohibirlo en el prompt no alcanza —se lo pidió
+dos veces como CRITICAL— porque no es desobediencia: no tiene otro lugar de donde
+traerlo.
+
+- **Lo que entra en cuadro tiene que entrar por el lado opuesto al aire.** Se ve en el
+  frame final antes de gastar: preguntate por dónde tiene que entrar cada cosa nueva.
+  Cuesta 1 arreglarlo ahí y 10 después.
+- **Verificá las dos zonas cuadro por cuadro, no en los dos frames extremos.** Los dos
+  videos descartados tenían las zonas limpias en el `start_image` y en el `end_image` y
+  rotas en el medio. No se ve en el widget. Es el punto 7 de la lista de la skill.
+- **Y esperá que el problema se mude, no que desaparezca.** Al sacar las manos del
+  tercio izquierdo pasaron a cruzar la franja de la navbar. Eso se tapa gratis con un
+  velo en CSS; el re-roll se guarda para cuando la zona rota es la del titular.
+
+**El piso de "vale la pena scrubearlo" no lo cubre la escala aparente si la cámara no
+se mueve.** Ahí lo mide el **delta de p99 y de %pix>120 entre los dos frames**: un par
+con 113 → 114 produjo un clip impecable que se rechazó por parecer una foto quieta; el
+aprobado fue 113 → 213. No uses el brillo medio, que da parecido en los dos casos.
 
 ## Límite del entorno
 

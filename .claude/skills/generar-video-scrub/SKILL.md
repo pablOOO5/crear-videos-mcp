@@ -37,12 +37,16 @@ arriba.**
 **1. Cambio de foco.** La cámara casi no se mueve: arranca cerrada en un detalle
 y abre, o al revés. Riesgo mínimo en el video. Pero el error no desaparece: se
 corre a las imágenes, donde calibrar el desenfoque suele llevar dos o tres
-intentos. Eso es una ventaja, no un defecto —falla del lado de 1,5 y no del de
-28—, pero cambia la expectativa de costo. Ver "Calibrar el desenfoque".
+intentos. Eso es una ventaja, no un defecto —falla del lado de 1 y no del de
+10—, pero cambia la expectativa de costo. Ver "Calibrar el desenfoque".
 
 **2. Transformación con cámara fija.** Mismo encuadre exacto en los dos frames,
 lo que cambia es el estado de la escena: obra → edificio terminado, salón vacío →
-montado, producto armado → explotado. La cámara no se mueve nada. Sale muy bien.
+montado, producto armado → explotado. La cámara no se mueve nada. **Técnicamente
+sale muy bien** — sin cortes ni geometría inventada. Pero es el tipo con más
+rechazos por motivos que no son técnicos: no viene con el piso de interés resuelto
+(medile el delta de altas luces) y es donde el modelo mete lo nuevo en el aire del
+titular. Ver las dos secciones correspondientes antes de elegirlo.
 
 **3. Cambio de escena dentro de un mismo espacio.** Un desplazamiento corto —dos
 o tres metros—, un giro sobre el eje, un retroceso o un acercamiento, dentro del
@@ -125,6 +129,33 @@ Reglas que se desprenden:
   el resto de la escena pedía un avance frontal. Dos re-rolls y 3 créditos. Se
   detecta antes con la prueba del residual (ver "Medir la distancia"), y se evita
   del todo decidiendo esto al componer el frame inicial.
+- **Lo que entra en cuadro tiene que entrar por el lado opuesto a tu aire.** Es la
+  hermana de la regla anterior y vale también cuando la cámara no se mueve. Durante
+  una transformación el modelo tiene que meter lo nuevo por algún lado, y **usa el
+  espacio que le dejaste vacío — que es justamente el que reservaste para el
+  titular.**
+
+  Medido en `joyeria-alianzas/` (sept 2026): con el aire a la izquierda y un frame
+  final donde la manga del novio venía **desde la izquierda**, su mano tenía que
+  cruzar la zona del titular para llegar a destino. Lo hizo: el tercio izquierdo
+  llegó a **p95 192 con el 18% de sus píxeles sobre 120 durante tres de los ocho
+  segundos**, y el titular blanco desaparecía en la mitad del scroll. Se rehízo el
+  frame final con las dos manos entrando desde la derecha y el mismo tercio quedó
+  con **cero píxeles sobre 120 en los 193 cuadros**.
+
+  Se ve en el frame final antes de gastar: preguntate por dónde tiene que entrar
+  cada cosa nueva. Cuesta 1 arreglarlo ahí y 10 después.
+
+  **Prohibirlo en el prompt no alcanza** — se lo pedí dos veces marcado como
+  CRITICAL y lo ignoró las dos. Es el mismo caso que la geometría cortada por el
+  borde: no es desobediencia, es que no tiene otro lugar de donde traerlo.
+
+  **Y esperá que el problema se mude, no que desaparezca.** Al sacar las manos del
+  tercio izquierdo, la que entra a tomar el objeto pasó a cruzar la franja de la
+  navbar (p99 237). Eso se tapó gratis con un velo en CSS. La regla completa es
+  *"componé para el aire, verificá las dos zonas cuadro por cuadro, y presupuestá
+  un velo"*, no *"se arregla componiendo"*.
+
 - **Nada de aéreo alto → nivel del piso.** Es el error clásico. Si querés llegar
   al piso, arrancá de un aéreo bajo.
 - **Compartí el eje.** Aunque los dos frames sean lugares distintos, que la
@@ -141,9 +172,13 @@ Un desplazamiento prolijo en el que no pasa nada se rechaza igual que uno cortad
 sólo que además de perder los créditos era aburrido. La lista de tipos de arriba
 ordena por riesgo técnico, no por interés.
 
-La medida práctica del piso es **la escala aparente entre los dos frames**: cuánto
-se agranda el sujeto del inicial al final (ver "Medir la distancia" más abajo).
-Serie medida hasta hoy (sept 2026):
+El piso se mide distinto según si la cámara viaja o no. **Las dos mediciones son
+baratas y las dos predijeron un rechazo antes de gastar el video.**
+
+### Si la cámara viaja: la escala aparente
+
+Cuánto se agranda el sujeto del inicial al final (ver "Medir la distancia" más
+abajo). Serie medida hasta hoy (sept 2026):
 
 | Escala | Qué pasó | Veredicto |
 |---|---|---|
@@ -152,7 +187,7 @@ Serie medida hasta hoy (sept 2026):
 | 2,50× | Vivero: plano general → primer plano de un objeto de la mesada | **Aprobado** |
 
 > **Apuntá a 2,5×. Por debajo de 2,5× avisá antes de gastar el video** y ofrecé un
-> frame final más cerrado por 1,5.
+> frame final más cerrado por 1.
 
 El 1,99× es el caso que fijó el umbral, y vale la pena leer cómo pasó: la medición
 lo marcó "justo en el filo", se avisó antes de gastar, el usuario eligió avanzar, y
@@ -164,9 +199,9 @@ Dos lecciones prácticas:
 
 - **Un clip impecable que quedó corto se tira igual.** No te dejes tranquilizar por
   que las verificaciones den bien: son ortogonales a esto.
-- **Cerrar el frame final cuesta 1,5 y tiene valor esperado positivo cuando la
-  medición da borderline.** Si sale corto igual, perdiste 1,5; si no lo cerrás y
-  sale corto, perdés 1,5 *más* el video. En el taller de carpintería el modelo
+- **Cerrar el frame final cuesta 1 y tiene valor esperado positivo cuando la
+  medición da borderline.** Si sale corto igual, perdiste 1; si no lo cerrás y
+  sale corto, perdés 1 *más* el video. En el taller de carpintería el modelo
   además **entregó menos de lo pedido**: le pedí hombros a un cuarto del ancho
   (336 px) y devolvió 243 px, o sea 1,99× en vez de los 2,75× planificados. Pedí
   el plano **más cerrado de lo que querés**, porque `gpt_image_2` afloja.
@@ -174,11 +209,54 @@ Dos lecciones prácticas:
 Anotá la escala de cada tanda con su veredicto, para que el umbral se siga apoyando
 en datos y no en intuición.
 
-El corolario para elegir el tipo: el cambio de foco y la transformación con cámara
-fija cambian mucho *aunque* la cámara no viaje — por eso son seguros y además
-sirven. El que corre el riesgo de quedar por debajo del piso es el desplazamiento
-corto. Si elegís ese, apuntá a que el frame final sea claramente **otro plano**, no
-el mismo corrido unos metros.
+### Si la cámara NO viaja: el delta de altas luces
+
+**La escala aparente no aplica en cámara fija**, y durante un tiempo esta skill
+afirmó que no hacía falta ninguna medida porque el cambio de foco y la
+transformación *"cambian mucho aunque la cámara no viaje"*. **Es falso, y costó 10
+créditos comprobarlo** (`joyeria-alianzas/`, sept 2026): una transformación con
+cámara fija puede cambiar la escena entera y ser perceptualmente casi nada.
+
+Lo que sí predice el rechazo es **cuánto se mueven las altas luces entre los dos
+frames**:
+
+```python
+from PIL import Image
+import numpy as np
+a = np.asarray(Image.open("frame1.png").convert("L")).astype(np.float32)
+b = np.asarray(Image.open("frame2.png").convert("L")).astype(np.float32)
+for n, g in (("inicial", a), ("final", b)):
+    print("%-8s media %5.1f  p99 %5.1f  %%pix>120 %4.1f"
+          % (n, g.mean(), np.percentile(g, 99), 100*(g > 120).mean()))
+```
+
+| p99 inicial → final | %pix>120 | Qué pasó | Veredicto |
+|---|---|---|---|
+| **113 → 114** | 0,8% → 0,8% | Joyería: estuche en la vitrina → el mismo estuche en una iglesia. Clip impecable en las seis verificaciones | **Rechazado** — "es como una imagen fija" |
+| 113 → 209 | 0,8% → 13,8% | Joyería: alianzas en el estuche → puestas en las manos de los novios | Aprobado (se rehízo por otro motivo) |
+| **113 → 213** | 0,8% → 8,9% | Ídem, con las manos entrando desde la derecha | **Aprobado** |
+
+> **Si el p99 casi no se mueve entre los dos frames, el clip va a parecer una foto
+> quieta.** Avisá antes de gastar el video y ofrecé rehacer un frame por 1.
+
+**No uses el brillo medio global para esto**: en el par rechazado iba de 20,1 a 19,2
+y en el aprobado de 20,1 a 31,4 — números parecidos para casos opuestos. Lo que
+manda es la cola alta del histograma, no el promedio.
+
+**El modo de falla es contraintuitivo: viene de cuidar demasiado el texto.** En esa
+tanda las mediciones daban delta de navbar +1,2 contra un umbral de 5, y p95 del
+titular en 28 con lugar hasta 100. Eso no era "pasa": era **estar usando la cuarta
+parte del rango disponible**. Las zonas de texto están separadas espacialmente de
+donde vive la luz, así que casi siempre podés subir mucho el contraste del resto sin
+tocarlas.
+
+### El corolario para elegir el tipo
+
+El que corre el riesgo de quedar por debajo del piso es el desplazamiento corto: si
+elegís ese, apuntá a que el frame final sea claramente **otro plano**, no el mismo
+corrido unos metros. Y el cambio de foco y la transformación con cámara fija son los
+de menor riesgo técnico, pero **no vienen con el piso resuelto de arriba** — medíles
+el delta de altas luces igual.
 
 ## Composición para hero
 
@@ -229,7 +307,7 @@ Cinematic [grade], natural film grain.
 ```
 
 Parámetros: `model: "gpt_image_2"`, `resolution: "1k"`, `quality: "medium"`,
-`aspect_ratio: "16:9"`. Costo: **1,5 créditos**.
+`aspect_ratio: "16:9"`. Costo: **1 crédito** (bajó de 1,5 en sept 2026; verificá con `get_cost`).
 
 ### Calibrar el desenfoque
 
@@ -301,7 +379,7 @@ final. La referencia no suma costo, así que no hay motivo para no usarla.
 ## Analizar los dos frames antes de gastar en el video
 
 **Este paso es obligatorio y va antes del video.** El video cuesta 28 créditos: un
-problema de composición detectado acá se arregla por 1,5.
+problema de composición detectado acá se arregla por 1.
 
 No alcanza con leer el prompt que escribiste: **hay que bajar las dos imágenes y
 mirarlas**. El prompt es lo que pediste; la imagen es lo que salió, y casi nunca
@@ -344,7 +422,7 @@ Este es el punto del paso. Comparando los dos frames tenés que poder responder:
   Solo poné en el prompt los que estén realmente en la imagen.
 - **¿Cómo está orientado y ubicado el sujeto?** Si en el frame final un objeto
   quedó girado o corrido respecto del inicial, el video va a saltar. Se corrige
-  rehaciendo ese frame por 1,5, no escribiendo más prohibiciones.
+  rehaciendo ese frame por 1, no escribiendo más prohibiciones.
 - **¿La distancia es razonable, y es suficiente?** No la estimes a ojo: medí la
   escala aparente (ver "Medir la distancia"). Si la cámara tiene que cruzar medio
   ambiente en 8 segundos, avisá antes de gastar; **si la escala no llega a 2,5×,
@@ -368,7 +446,7 @@ Antes de gastar, escribile tres o cuatro líneas con:
 2. **Qué puede fallar en este caso concreto**, no en general: "hay una mano en el
    primer frame y es lo que más se deforma", "el espejo del fondo va a tener que
    recalcular el reflejo", "la tijera quedó girada respecto del otro frame".
-3. **Qué cuesta arreglar cada cosa**: rehacer un frame 1,5, rehacer el video 28.
+3. **Qué cuesta arreglar cada cosa**: rehacer un frame 1, rehacer el video 10.
 
 Y recién ahí preguntá si se avanza. Un problema nombrado antes de gastar vale más
 que un diagnóstico perfecto después.
@@ -394,7 +472,7 @@ que un diagnóstico perfecto después.
   falta jugar.
 
   La regla: **lo que está cortado por el borde, o entra entero en cuadro, o no
-  está.** Se arregla por 1,5 rehaciendo el frame, y es más barato que rifar cuál
+  está.** Se arregla por 1 rehaciendo el frame, y es más barato que rifar cuál
   modelo lo extrapola bien. Prohibirlo en el prompt del video ayuda pero no
   alcanza: no es desobediencia, es falta de información.
 
@@ -404,7 +482,7 @@ que un diagnóstico perfecto después.
 - **Dirección de la luz**: ¿viene del mismo lado en los dos?
 - **Ancla**: ¿el sujeto del frame final ya existe en el inicial?
 - **Distancia**: ¿cuánto tiene que viajar la cámara? Si es mucho, decilo ahora y
-  ofrecé rehacer un frame por 1,5 en vez de tirar 28 en un video que va a cortar.
+  ofrecé rehacer un frame por 1 en vez de tirar 10 a 28 en un video que va a cortar.
 - **Posición del sujeto**: si se mueve de lugar entre un frame y otro sin que la
   cámara lo justifique, el video va a saltar.
 - **La franja de la navbar, comparada**: no alcanza con que esté limpia en cada
@@ -450,9 +528,27 @@ def obj(g, x0,y0,x1,y1, umbral=150):
 
 Cómo leerlo:
 
-- **Corrimiento del sujeto**: por debajo del 0,5% del ancho no se nota. Si el
-  área cambia mucho pero el centroide no, es el halo del desenfoque, no un
+- **Corrimiento del sujeto**: por debajo del 0,5% del ancho no se nota. **Por
+  encima, fijate primero si es una traslación pura antes de rehacer el frame**: el
+  umbral está para detectar un *salto* —una reubicación que el modelo no puede
+  interpolar—, no una deriva lineal, que interpola sin esfuerzo. Se distinguen
+  buscando el `dx,dy` que mejor alinea la zona (ver abajo): si el residual cae
+  fuerte al compensarlo, es traslación pura y el modelo la reparte a lo largo del
+  clip. Medido en `joyeria-alianzas/`: 16 px (1,19% del ancho, residual −73% al
+  compensar) salieron como una deriva perfectamente lineal de −2, −4, −6, −9, −11,
+  −13, −14, −15 px a lo largo de los 8 s, o sea **0,08 px por cuadro**; y 68 px de
+  bajada en otro par tampoco se notaron. Tomado al pie de la letra, el umbral hace
+  gastar créditos al pedo. Si el residual **no** cae, ahí sí rehacé el frame.
+  Y si el área cambia mucho pero el centroide no, es el halo del desenfoque, no un
   movimiento — no rehagas nada.
+- **Cámara fija: overlay + búsqueda de `dx,dy`, no centroide.** El centroide sobre
+  una máscara de brillos especulares se equivoca —daba 0,9% donde el real era
+  1,19%— y toda la sección "Medir la distancia" está escrita para avance de cámara.
+  Cuando la cámara no se mueve, lo que sirve es el overlay rojo/cian para *ver* el
+  corrimiento y una búsqueda de desplazamiento para *cuantificarlo*, corrida por
+  separado sobre el sujeto y sobre el fondo. En una transformación bien armada el
+  sujeto da un `dx,dy` chico con caída fuerte del residual, y el fondo da `dx=0` con
+  caída de 0%: ninguna traslación lo relaciona porque cambió de verdad.
 - **Brillo**: diferencias por debajo de ~5 sobre 255 (2%) son imperceptibles. Lo
   que delata un empalme son los saltos grandes, no estos. **Y medilo sobre zonas
   de contenido invariante, nunca sobre el cuadro entero si la cámara se movió.**
@@ -543,11 +639,21 @@ Los dos casos de la tabla son el mismo cliente el mismo día
 qué lado del centro estaba el sujeto en el frame inicial.
 
 **Si el residual no baja al menos ~30% o el centro de fuga sale pegado a un
-borde, no lances el video.** Rehacé un frame por 1,5. Es la diferencia entre
-gastar 1,5 y gastar 10 a 28 en un clip que va a cortar.
+borde, no lances el video.** Rehacé un frame por 1. Es la diferencia entre
+gastar 1 y gastar 10 a 28 en un clip que va a cortar.
 
 El residual también dice si hubo parallax real: si compensar la escala casi no
 baja el error (40,3 → 35,1 en el vivero), es un dolly con parallax y no un zoom.
+
+**En cámara fija este semáforo no aplica y no significa que el par sea malo.** El
+barrido busca un avance de cámara, y si no lo hay el residual no baja y el centro
+de fuga sale donde caiga — exactamente la firma que arriba se lee como rechazo. Para
+un par de cámara fija el semáforo equivalente es el de la búsqueda de `dx,dy` por
+zonas: **el sujeto tiene que dar una caída fuerte del residual (traslación pura) y
+el fondo una caída de ~0%** (cambió de verdad, ninguna traslación lo relaciona).
+Medido en el par aprobado de `joyeria-alianzas/`: sujeto 14,76 → 4,00 (**−73%**),
+fondo −0%, y el fondo cambió 3,5× más que el sujeto ya compensado. Y el piso lo mide
+el delta de altas luces, no la escala (ver "Si la cámara NO viaja").
 
 Entregá el diagnóstico como una lista corta de hallazgos concretos, con los
 números medidos, y para cada problema decí qué cuesta arreglarlo. Después
@@ -693,22 +799,80 @@ Pedile al usuario que lo mire y pasale esta lista:
    que en reproducción normal, y el tramo muerto es el más fácil de pasar por alto
    mirando el clip.
 
-Si falla, ofrecé rehacer el video con el prompt corregido (28) o rehacer un frame
-si el problema viene de la composición (1,5). **Preguntá antes de rehacer.**
+7. **Las zonas de texto, cuadro por cuadro.** No alcanza con que estén limpias en
+   los dos frames extremos: hay que medirlas en los 193 cuadros. Ver abajo.
+
+Si falla, ofrecé rehacer el video con el prompt corregido (10 con Kling) o rehacer
+un frame si el problema viene de la composición (1). **Preguntá antes de rehacer.**
+
+### El punto 7: las zonas de texto se rompen en el medio del clip
+
+Los puntos 1 a 6 miran el clip como película. **Ninguno mira si el titular y la
+navbar se siguen leyendo**, y ahí es donde se fueron dos videos en
+`joyeria-alianzas/` (sept 2026). Los dos tenían **las dos zonas perfectamente
+limpias en el `start_image` y en el `end_image`** y las dos rotas en el medio: un
+p95 de 192 en el tercio del titular a los 2,9 s, y un adorno dorado alucinado en la
+franja de la navbar con p99 233 entre los 3,5 y los 6,5 s.
+
+No se ve mirando el clip en el widget, y no se puede deducir de los dos frames.
+Corre en segundos y hay que hacerlo siempre:
+
+```python
+from PIL import Image
+import numpy as np, glob
+G = np.stack([np.asarray(Image.open(f).convert("L")).astype(np.float32)
+              for f in sorted(glob.glob("png/f*.png"))])
+N, H, W = G.shape
+for n, z in (("titular tercio izq", G[:, int(.28*H):int(.80*H), :int(.33*W)]),
+             ("titular mitad izq",  G[:, int(.28*H):int(.80*H), :int(.50*W)]),
+             ("navbar",             G[:, :int(.12*H), :]),
+             ("navbar tercio izq",  G[:, :int(.12*H), :int(.33*W)])):
+    m = z.mean(axis=(1, 2)); p = np.percentile(z, 95, axis=(1, 2))
+    print("%-20s peor cuadro: media %5.1f  p95 %5.1f  %%>120 %4.1f  (s %.1f)"
+          % (n, m.max(), p.max(), 100*(z > 120).mean(axis=(1, 2)).max(), m.argmax()/24))
+```
+
+Cómo leerlo:
+
+- **El criterio es el peor cuadro, no el promedio ni los extremos.** El texto es fijo
+  y el fondo se le mueve debajo todo el scroll: basta un tramo malo.
+- **Referencia buena:** el clip aprobado dio, en el tercio del titular, media máxima
+  11,8 · p95 28 · **0,0% de píxeles sobre 120 en los 193 cuadros**. El rechazado, en
+  la misma zona, 56,9 · 192 · 18,2%.
+- **Medí también las sub-zonas.** En el clip aprobado la franja de la navbar entera
+  llegaba a p99 237, pero **su tercio izquierdo se mantenía en p99 19**: alcanzó con
+  un velo que arranca transparente a la izquierda, y el logo quedó sin tapar.
+- **Antes de rehacer, probá bajar la franja.** En ese caso midiendo seis bandas de
+  y=0% a y=32% todas llegaban a p99 ~235, así que no había salida y el velo era la
+  única. Pero cuando la hay, es gratis.
+
+Un tramo malo **no obliga a rehacer el video**: un velo en CSS sobre la franja
+afectada cuesta cero y es práctica normal en cualquier landing. Rehacer sale 10 a 28
+y, como se midió, tiende a mudar el problema de zona en vez de eliminarlo. Reservá
+el re-roll para cuando la zona rota sea la del titular, que ocupa media pantalla y
+no se puede velar sin ensuciar el clip.
 
 ### El punto 6 depende del modelo — medilo siempre, corregilo sólo si hace falta
 
 **Cuánto ease-in-out mete cada modelo, medido como pico sobre el promedio:**
 
-| Modelo | Pico | ¿Hay que relinealizar? |
-|---|---|---|
-| Seedance 2.0 | **6,6×** | Sí, siempre |
-| Veo 3.1 Lite | 1,52× | Sí — los extremos quedaban en 0,34× y 0,41× |
-| **Kling 3.0** | **1,11×** | **No.** 0,78× a 1,11× de fábrica |
+| Modelo | Tipo de plano | Pico | ¿Hay que relinealizar? |
+|---|---|---|---|
+| Seedance 2.0 | dolly interior | **6,6×** | Sí |
+| Veo 3.1 Lite | dolly interior | 1,52× | Sí — los extremos caían a 0,34× y 0,41× |
+| Kling 3.0 | dolly interior | **1,11×** | No — 0,78× a 1,11× de fábrica |
+| **Kling 3.0** | **transformación, cámara fija** | **2,75× y 3,41×** | **Sí — la cola caía a 0,17× y 0,02×** |
+
+> **La linealidad depende del plano, no sólo del modelo. Medila siempre.** Durante un
+> tiempo esta skill decía "con Kling se saltea el paso entero", apoyada en un único
+> dolly. En transformación con cámara fija el mismo modelo se porta **peor que Veo en
+> el dolly**: dos clips medidos en `joyeria-alianzas/` (sept 2026) dieron picos de
+> 2,75× y 3,41× con los últimos dos segundos prácticamente congelados. No hay atajo
+> por modelo.
 
 El criterio es el de siempre: el tramo más rápido cerca de 2× o menos y el más
 lento no por debajo de ~0,5×. **Si el clip ya lo cumple, no lo toques**: el
-remapeo mezcla cuadros y cuesta nitidez. Con Kling se saltea el paso entero.
+remapeo mezcla cuadros y cuesta nitidez.
 
 Lo que sigue vale cuando el clip no cumple.
 
@@ -731,21 +895,46 @@ No hace falta regenerar. Se remapean los cuadros para que el cambio avance
 parejo:
 
 1. Extraer los cuadros: `ffmpeg -i raw.mp4 png/f%04d.png`
-2. Medir la **velocidad instantánea** de cada cuadro: la diferencia media absoluta
-   contra el anterior, `np.abs(G[i]-G[i-1]).mean()`. Sirve igual para un cambio de
-   foco, una transformación o un movimiento de cámara, sin caso especial.
-3. **Restarle el piso de grano** —`np.percentile(d, 4)`, que en un clip medido dio
-   0,163— y recortar a cero con `np.clip(d - piso, 0, None)`. Sin este paso el
-   tramo congelado sigue sumando, porque el grano nunca es cero, y el remuestreo
-   termina asignándole cuadros a un tramo donde no pasa nada.
+2. Medir la **velocidad instantánea** de cada cuadro **sobre cuadros filtrados**:
+   achicar a ~320 px y desenfocar antes de restar,
+   `Image.open(f).convert("L").resize((320,179)).filter(GaussianBlur(1.5))`, y
+   recién ahí `np.abs(G[i]-G[i-1]).mean()`. Sirve igual para un cambio de foco, una
+   transformación o un movimiento de cámara, sin caso especial. **El filtrado no es
+   opcional: ver la advertencia de abajo.**
+3. **Restar el piso de grano sólo si hace falta.** El piso —`np.percentile(d, 4)`,
+   recortando con `np.clip(d - piso, 0, None)`— es un parche contra el grano, y si
+   filtraste en el paso 2 casi siempre sobra. **En un clip oscuro directamente
+   empeora**: barriendo el piso del percentil 0 al 6 en `joyeria-alianzas/`, no
+   restar nada dio un pico de **1,37×** y restar el percentil 4 lo llevó a **6,4×**,
+   porque el piso se come el avance real de la cola y el remuestreo sobrecorrige.
+   Probá con percentil 0 primero.
 4. Integrar la velocidad limpia y normalizar: `p = np.concatenate([[0],
    np.cumsum(dc)]); p /= p[-1]`, monotonizando con `np.maximum.accumulate`. Esa es
    la curva de avance.
-5. Remuestrear a progresión pareja: `pos = np.interp(np.linspace(0,1,N), p,
-   np.arange(len(p)))`, y para cada objetivo **mezclar los dos cuadros que lo
+5. **Truncar la fuente donde el avance se termina**: `END = np.searchsorted(p, 0.990)`
+   y renormalizar `pt = p[:END+1] / p[END]`. Si la cola quedó congelada, `p` se queda
+   plana ahí y `np.interp` le asigna todos los objetivos al primer índice de la
+   meseta, y después pega un salto en el último cuadro. Medido: un clip tenía **8
+   cuadros con avance exactamente cero** y el último objetivo saltaba 9 cuadros de
+   golpe. Sin este paso la receta produce un tirón al final.
+6. Remuestrear a progresión pareja: `pos = np.interp(np.linspace(0,1,N), pt,
+   np.arange(END+1))`, y para cada objetivo **mezclar los dos cuadros que lo
    bracketean** con su peso fraccional. Repetir el cuadro más cercano en vez de
    mezclar produce micro-tirones.
-6. Reencodear la secuencia con `-g 1` (ver "Entrega para scrub").
+7. Reencodear la secuencia con `-g 1` (ver "Entrega para scrub").
+
+**Barré los dos parámetros en vez de adivinarlos.** El piso (percentil 0 a 6) y el
+corte (0,985 a 1,0) se evalúan sobre los cuadros chicos en segundos, sin renderizar
+nada en tamaño real. Elegí el par que minimiza el pico y mantiene todos los tramos
+entre ~0,6× y ~1,5×.
+
+> **Medí siempre sobre cuadros filtrados, también al verificar.** Con grano crudo,
+> mezclar cuadros descorrelaciona el grano e **infla la medición justo donde los
+> pasos del remuestreo son grandes**, o sea en la cola. En `joyeria-alianzas/` el
+> mismo clip retimeado medía pico 3,15× y cola 2,17× con cuadros crudos, y 2,18× y
+> 1,67× con cuadros filtrados. **El primer par de números era un artefacto de la
+> medición**, y por poco lleva a "arreglar" dos veces un clip que ya estaba bien.
+> Cuanto más oscura la escena, peor el efecto.
 
 **No uses la diferencia contra el primer cuadro como curva de avance**, aunque sea
 lo que parece natural: satura. En el vivero llegó a 1,00 en el cuadro 128 cuando
@@ -799,24 +988,33 @@ mismo ScrollTrigger. Nunca dentro de la imagen.
 
 | Ítem | Créditos |
 |---|---|
-| Imagen 1k / medium / 16:9 | 1,5 |
+| Imagen 1k / medium / 16:9 | **1** *(bajó de 1,5; sept 2026)* |
 | **Video 8s — Kling 3.0 std** | **10** |
+| Video 12s — Kling 3.0 std | 15 |
 | Video 8s — Seedance 2.0 fast 720p | 28 |
 | Video 8s — Seedance 2.0 fast 480p *(iterar)* | 12 |
 | Video 12s — Seedance 2.0 fast 720p | 42 |
-| **Piso teórico (2 imágenes + Kling)** | **13** |
-| **Tanda realista (3 a 5 imágenes + Kling)** | **14,5 a 17,5** |
+| **Piso teórico (2 imágenes + Kling)** | **12** |
+| **Tanda realista (3 a 5 imágenes + Kling)** | **13 a 15** |
+| **Tanda con un video descartado** | **23 a 25** |
 
 Medido de punta a punta en `taller-carpinteria/`: **25,5 créditos** para 5
 imágenes y **dos** videos (uno descartado). Con un solo video habrían sido 17,5.
 
-Los 31 asumen que las dos imágenes salen a la primera, y casi nunca pasa: entre
+Y en `joyeria-alianzas/`: **36 créditos** para 6 imágenes y **tres** videos, con dos
+descartados. Con uno solo habrían sido 16.
+
+El piso asume que las dos imágenes salen a la primera, y casi nunca pasa: entre
 calibrar el desenfoque, corregir el aire para el texto o sacar un objeto colado,
 lo normal son tres a cinco. **Decile el rango al usuario cuando presentes el
 presupuesto de la tanda**, no el piso, así no parece que te fuiste de precio a
 mitad de camino.
 
-El video, en cambio, suele salir a la primera si los frames se analizaron bien.
-Ahí es donde rinde gastar imágenes de más.
+**Y no prometas que el video sale a la primera.** Esta skill decía que "suele salir
+a la primera si los frames se analizaron bien"; en `joyeria-alianzas/` se
+analizaron bien y se descartaron dos, uno por rango dinámico y otro por invasión de
+las zonas de texto — ninguno de los dos motivos era visible en los frames. Sigue
+siendo cierto que **rinde gastar imágenes de más**, porque a 1 crédito son la parte
+barata; pero cuando el plano es una transformación, presupuestá **dos videos**.
 
 Los precios cambian: **verificá siempre con `get_cost: true`** antes de lanzar.
